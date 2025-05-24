@@ -5,10 +5,10 @@ import Sketcher
 class MotorControlPCB:
 	def __init__(self):
 		self.BoardThickness = 1.0	
-		self.BottomLayerClearance = 1.0
+		self.BottomLayerClearance = 1.0	#clearance from the bottom of board to highest component. 
 		self.EncoderHeight = 0.5
 		self.EncoderAirgap = 1.0
-		self.BoardRadius = 32
+		self.BoardRadius = 16
 		self.BoardSeatClearance = 0.3	#mm
 
 
@@ -73,10 +73,22 @@ if(mp.stator.IsInrunner == True):
 	p.append(App.Vector(p[len(p)-1].x, p[len(p)-1].y + heightFromStatorBase)) #vertical	#increase y to add clearance for the top bearing
 	outerWallRadius = innerWallRadius + mp.OuterWallThickness
 	p.append(App.Vector(outerWallRadius, p[len(p)-1].y))	#horizontal
-	p.append(App.Vector(p[len(p)-1].x, -mp.bottomBearing.Height))
+
+	"""
+	Create a seat for the pcb. Note: for an inrunner with top and bottom bearing, the rotor will rest on the bearing races and will be retained that way, 
+	so retaining rings should not be necessary
+	"""
+	distFromOriginToBase = mp.bottomBearing.Height + mp.mctl_pcb.BoardThickness + mp.mctl_pcb.EncoderAirgap + mp.mctl_pcb.EncoderHeight 
+	p.append(App.Vector(p[len(p)-1].x, p[0].y - distFromOriginToBase))
+	p.append(App.Vector(mp.mctl_pcb.BoardRadius, p[len(p)-1].y))
+	p.append(App.Vector(p[len(p)-1].x, p[len(p)-1].y + mp.mctl_pcb.BoardThickness))
+	p.append(App.Vector(p[len(p)-1].x-mp.mctl_pcb.BoardSeatClearance, p[len(p)-1].y))
+	p.append(App.Vector(p[len(p)-1].x, p[0].y - mp.bottomBearing.Height))
 	p.append(App.Vector(mp.bottomBearing.OD, p[len(p)-1].y))
 	p.append(App.Vector(p[len(p)-1].x, 0))
 	p.append(App.Vector(p[0].x, p[len(p)-1].y))
+
+
 
 	#TODO: load points into an array and play back 
 	for i in range(0,len(p)-1):
