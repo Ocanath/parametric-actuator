@@ -41,8 +41,8 @@ class MotorParams:
 mp = MotorParams()
 
 
-doc = App.newDocument("stator-housing")
-App.setActiveDocument("stator-housing")
+doc = App.newDocument("StatorHousing")
+App.setActiveDocument("StatorHousing")
 App.ActiveDocument.recompute()
 
 sketch = doc.addObject("Sketcher::SketchObject", "StatorHousingCrossSection")
