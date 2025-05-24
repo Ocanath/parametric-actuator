@@ -2,6 +2,15 @@ import FreeCAD as App
 import Part
 import Sketcher
 
+class MotorControlPCB:
+	def __init__(self):
+		self.BoardThickness = 1.0	
+		self.BottomLayerClearance = 1.0
+		self.EncoderHeight = 0.5
+		self.EncoderAirgap = 1.0
+		self.BoardRadius = 32
+		self.BoardSeatClearance = 0.3	#mm
+
 
 class Bearing:
 	def __init__(self, ID, OD, Height):
@@ -30,7 +39,8 @@ class FramelessMotor:
 #TODO: move this to separate file
 class MotorParams:
 	def __init__(self):
-		self.stator = FramelessMotor()	#init all classes from actuator yaml
+		self.stator = FramelessMotor()	#TODO: init all classes from actuator yaml
+		self.mctl_pcb = MotorControlPCB()
 		if(self.stator.IsInrunner):
 			self.topBearing = Bearing(16, 8, 4)
 			self.bottomBearing = Bearing(16, 8, 4)
