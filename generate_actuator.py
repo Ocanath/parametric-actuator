@@ -61,34 +61,26 @@ sketch = doc.addObject("Sketcher::SketchObject", "StatorHousingCrossSection")
 sketch.Placement = App.Placement(App.Vector(0,0,0), App.Rotation(0,0,0,1))	#position, orientation. TODO pull in the rotation matrix translation helper function from the parametric gear design work you did earlier
 
 if(mp.stator.IsInrunner == True):
-	parr = []
+	p = []
 	
-	p1 = App.Vector(mp.bottomBearing.OD - mp.bottomBearing.OuterRaceClearance,0)
-	p2 = App.Vector(p1.x,mp.BottomBearingSupportThickness)
+	p.append(App.Vector(mp.bottomBearing.OD - mp.bottomBearing.OuterRaceClearance,0))
+	p.append(App.Vector(p[0].x,mp.BottomBearingSupportThickness))
 	innerWallRadius = mp.stator.StatorOD	#line to line
-	p3 = App.Vector(innerWallRadius-mp.stator.StatorODMountClearance, p2.y)
-	p4 = App.Vector(p3.x, p3.y + mp.stator.WireClearance) #vertical
-	p5 = App.Vector(innerWallRadius, p4.y) #horizontal
+	p.append(App.Vector(innerWallRadius-mp.stator.StatorODMountClearance, p[len(p)-1].y))
+	p.append(App.Vector(p[len(p)-1].x, p[len(p)-1].y + mp.stator.WireClearance)) #vertical
+	p.append(App.Vector(innerWallRadius, p[len(p)-1].y)) #horizontal
 	heightFromStatorBase  = mp.stator.StatorHeight + mp.topBearing.Height + mp.GearboxHeightClearance
-	p6 = App.Vector(p5.x, p5.y + heightFromStatorBase) #vertical	#increase y to add clearance for the top bearing
+	p.append(App.Vector(p[len(p)-1].x, p[len(p)-1].y + heightFromStatorBase)) #vertical	#increase y to add clearance for the top bearing
 	outerWallRadius = innerWallRadius + mp.OuterWallThickness
-	p7 = App.Vector(outerWallRadius, p6.y)	#horizontal
-	p8 = App.Vector(p7.x, -mp.bottomBearing.Height)
-	p9 = App.Vector(mp.bottomBearing.OD, p8.y)
-	p10 = App.Vector(p9.x, 0)
-	p11 = App.Vector(p1.x, p10.y)
+	p.append(App.Vector(outerWallRadius, p[len(p)-1].y))	#horizontal
+	p.append(App.Vector(p[len(p)-1].x, -mp.bottomBearing.Height))
+	p.append(App.Vector(mp.bottomBearing.OD, p[len(p)-1].y))
+	p.append(App.Vector(p[len(p)-1].x, 0))
+	p.append(App.Vector(p[0].x, p[len(p)-1].y))
 
 	#TODO: load points into an array and play back 
-	sketch.addGeometry(Part.LineSegment(p1,p2))
-	sketch.addGeometry(Part.LineSegment(p2,p3))
-	sketch.addGeometry(Part.LineSegment(p3,p4))
-	sketch.addGeometry(Part.LineSegment(p4,p5))
-	sketch.addGeometry(Part.LineSegment(p5,p6))
-	sketch.addGeometry(Part.LineSegment(p6,p7))
-	sketch.addGeometry(Part.LineSegment(p7,p8))
-	sketch.addGeometry(Part.LineSegment(p8,p9))
-	sketch.addGeometry(Part.LineSegment(p9,p10))
-	sketch.addGeometry(Part.LineSegment(p10,p11))
+	for i in range(0,len(p)-1):
+		sketch.addGeometry(Part.LineSegment(p[i],p[i+1]))
 	
 
 doc.recompute()
