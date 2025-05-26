@@ -98,17 +98,22 @@ if(mp.stator.IsInrunner == True):
 		if i > 0:  # For all lines after the first one
 			# Make end point of previous line coincident with start point of current line
 			sketch.addConstraint(Sketcher.Constraint('Coincident', lines[i-1], 2, lines[i], 1))
+		elif i == 0:  # For the first line
+			# Fix the start point at the origin using distance constraints
+			sketch.addConstraint(Sketcher.Constraint('DistanceX', lines[i], 1, p[0].x))  # Fix x at 0
+			sketch.addConstraint(Sketcher.Constraint('DistanceY', lines[i], 1, p[0].y))  # Fix y at 0
+		
 		# Check if line is horizontal (same y coordinates)
 		if abs(p[i].y - p[i+1].y) < 1e-6:
 			sketch.addConstraint(Sketcher.Constraint('Horizontal', i))
+			# Add distance constraint for horizontal lines
+			sketch.addConstraint(Sketcher.Constraint('Distance', i, abs(p[i+1].x - p[i].x)))
 		# Check if line is vertical (same x coordinates)
 		elif abs(p[i].x - p[i+1].x) < 1e-6:
 			sketch.addConstraint(Sketcher.Constraint('Vertical', i))
+			# Add distance constraint for vertical lines
+			sketch.addConstraint(Sketcher.Constraint('Distance', i, abs(p[i+1].y - p[i].y)))
 	
-	# Make the last point coincident with the first point to close the sketch
-	sketch.addConstraint(Sketcher.Constraint('Coincident', lines[-1], 2, lines[0], 1))
-
-		
 
 doc.recompute()
 
