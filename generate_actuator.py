@@ -91,9 +91,27 @@ if(mp.stator.IsInrunner == True):
 
 
 	#TODO: load points into an array and play back 
+	lines = []
 	for i in range(0,len(p)-1):
-		sketch.addGeometry(Part.LineSegment(p[i],p[i+1]))
+		line = sketch.addGeometry(Part.LineSegment(p[i],p[i+1]))
+		lines.append(line)
+		if i > 0:  # For all lines after the first one
+			# Make end point of previous line coincident with start point of current line
+			sketch.addConstraint(Sketcher.Constraint('Coincident', lines[i-1], 2, lines[i], 1))
 	
+	# Make the last point coincident with the first point to close the sketch
+	sketch.addConstraint(Sketcher.Constraint('Coincident', lines[-1], 2, lines[0], 1))
+
+	# Add horizontal and vertical constraints for each line
+	for i in range(len(p)-1):
+		# Check if line is horizontal (same y coordinates)
+		if abs(p[i].y - p[i+1].y) < 1e-6:
+			sketch.addConstraint(Sketcher.Constraint('Horizontal', i))
+		# Check if line is vertical (same x coordinates)
+		elif abs(p[i].x - p[i+1].x) < 1e-6:
+			sketch.addConstraint(Sketcher.Constraint('Vertical', i))
+		
 
 doc.recompute()
+
 
