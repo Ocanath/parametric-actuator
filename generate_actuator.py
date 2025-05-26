@@ -117,4 +117,13 @@ if(mp.stator.IsInrunner == True):
 
 doc.recompute()
 
+# Create the revolution
+revolve = doc.addObject("Part::Revolution", "StatorHousing")
+revolve.Source = sketch
+revolve.Axis = (0, 0, 1)  # Z axis
+revolve.Base = (0, 0, 0)  # Origin point
+revolve.Angle = 360  # Full revolution
+
+doc.recompute()
+
 
