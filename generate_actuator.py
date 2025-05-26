@@ -58,7 +58,7 @@ App.setActiveDocument("StatorHousing")
 App.ActiveDocument.recompute()
 
 sketch = doc.addObject("Sketcher::SketchObject", "StatorHousingCrossSection")
-sketch.Placement = App.Placement(App.Vector(0,0,0), App.Rotation(0,0,0,1))	#position, orientation. TODO pull in the rotation matrix translation helper function from the parametric gear design work you did earlier
+sketch.Placement = App.Placement(App.Vector(0,0,0), App.Rotation(App.Vector(1,0,0), 90))	# Rotate 90 degrees around X axis to get XZ plane
 
 if(mp.stator.IsInrunner == True):
 	p = []
