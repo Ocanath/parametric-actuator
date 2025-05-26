@@ -8,7 +8,7 @@ class MotorControlPCB:
 		self.BottomLayerClearance = 1.0	#clearance from the bottom of board to highest component. 
 		self.EncoderHeight = 0.5
 		self.EncoderAirgap = 1.0
-		self.BoardRadius = 16
+		self.BoardRadius = 20
 		self.BoardSeatClearance = 0.3	#mm
 
 
@@ -24,9 +24,9 @@ class Bearing:
 #TODO: move to separate file
 class FramelessMotor:
 	def __init__(self):
-		self.StatorOD = 60
-		self.StatorHeight = 26
-		self.StatorID = 30
+		self.StatorOD = 38
+		self.StatorHeight = 16
+		self.StatorID = 22
 		self.IsInrunner = True
 		if(self.IsInrunner):
 			self.StatorODMountClearance = 3	#radial dimension
@@ -42,8 +42,8 @@ class MotorParams:
 		self.stator = FramelessMotor()	#TODO: init all classes from actuator yaml
 		self.mctl_pcb = MotorControlPCB()
 		if(self.stator.IsInrunner):
-			self.topBearing = Bearing(16, 8, 4)
-			self.bottomBearing = Bearing(16, 8, 4)
+			self.topBearing = Bearing(30, 17, 4)
+			self.bottomBearing = Bearing(30, 17, 4)
 		else:
 			self.rotorBearing = Bearing(10,5,5)	#bleh
 		self.BottomBearingSupportThickness = 2	#thickness of the base
