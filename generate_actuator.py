@@ -58,8 +58,14 @@ class MotorParams:
 		else:
 			self.rotorBearing = Bearing(10,5,5)	#bleh
 		self.BottomBearingSupportThickness = 2	#thickness of the base
-		self.OuterWallThickness = 2
+		self.HousingOD = self.stator.StatorOD + 4
 		self.GearboxHeightClearance = 2
+		
+		#TODO: just load this?
+		#this is config dependent
+		self.StatorHousingHeight = self.GearboxHeightClearance + self.mctl_pcb.BoardThickness + self.mctl_pcb.EncoderHeight + self.mctl_pcb.EncoderAirgap + self.stator.StatorHeight + self.topBearing.Height + self.bottomBearing.Height
+
+
 #some motor parameter class, pulled all design defining dims from the yaml
 mp = MotorParams()
 
@@ -103,7 +109,7 @@ if(mp.stator.IsInrunner == True):
 		p.append(App.Vector(innerWallRadius, p[len(p)-1].y)) #horizontal
 		heightFromStatorBase  = mp.stator.StatorHeight + mp.topBearing.Height + mp.GearboxHeightClearance
 		p.append(App.Vector(p[len(p)-1].x, p[len(p)-1].y + heightFromStatorBase)) #vertical	#increase y to add clearance for the top bearing
-		outerWallRadius = innerWallRadius + mp.OuterWallThickness
+		outerWallRadius = mp.HousingOD/2
 		p.append(App.Vector(outerWallRadius, p[len(p)-1].y))	#horizontal
 
 		"""
@@ -183,6 +189,7 @@ if(mp.stator.IsInrunner == True):
 		pcb_seat_jog = sketch.addGeometry(Part.LineSegment(p, p2))
 		sketch.addConstraint(Sketcher.Constraint('Horizontal', pcb_seat_jog))
 		sketch.addConstraint(Sketcher.Constraint('Coincident', pcb_seat_jog, 1, pcb_gap_wall, 2))
+		sketch.addConstraint(Sketcher.Constraint('Distance', pcb_seat_jog, abs(mp.mctl_pcb.BoardSeatClearance)))	#set the pcb shelf clearance
 		#add coincident constraint to pcb seat
 
 		p = sketch.Geometry[pcb_seat_jog].EndPoint
@@ -191,7 +198,15 @@ if(mp.stator.IsInrunner == True):
 		sketch.addConstraint(Sketcher.Constraint('Coincident', pcb_sidewall, 1, pcb_seat_jog, 2))
 		#add constraint to pcb sidewall
 
+		p = sketch.Geometry[pcb_sidewall].EndPoint
+		p2 = App.Vector(mp.HousingOD/2, p.y)
+		base_support = sketch.addGeometry(Part.LineSegment(p, p2))
+		sketch.addConstraint(Sketcher.Constraint('Horizontal', base_support))
+		sketch.addConstraint(Sketcher.Constraint('Coincident', base_support, 1, pcb_sidewall, 2))
+		#add constraint to base support
 
+		p = sketch.Geometry[base_support].EndPoint
+		housing_sidewall = create_constrained_line(sketch, p, mp.StatorHousingHeight, LineOrientation.VERTICAL)
 
 		#add constraint to pcb seat support
 		
