@@ -1,0 +1,39 @@
+motor_control_pcb:
+  board_thickness: 1.0
+  bottom_layer_clearance: 1.0  # clearance from the bottom of board to highest component
+  encoder_height: 0.5
+  encoder_airgap: 1.0
+  board_radius: 20
+  board_seat_clearance: 0.3  # mm
+
+frameless_motor:
+  stator:
+    outer_diameter: 38
+    height: 16
+    inner_diameter: 22
+    is_inrunner: true
+    stator_od_mount_clearance: 3  # radial dimension
+    wire_clearance: 2  # mm, applied to top and bottom
+  rotor:
+    outer_diameter: 28
+    inner_diameter: 14  # calculated as rotor_od/2
+    height: 16  # same as stator height
+
+bearings:
+  top_bearing:
+    outer_diameter: 30
+    inner_diameter: 17
+    height: 4
+    inner_race_diameter: 31  # calculated as id + 1
+    outer_race_clearance: 1
+  bottom_bearing:
+    inner_diameter: 30
+    outer_diameter: 17
+    height: 4
+    inner_race_diameter: 31  # calculated as id + 1
+    outer_race_clearance: 1
+
+housing:
+  bottom_bearing_support_thickness: 2  # thickness of the base
+  outer_wall_thickness: 2
+  gearbox_height_clearance: 2 
