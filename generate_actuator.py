@@ -3,13 +3,15 @@ import Part
 import Sketcher
 import os
 import sys
+import FreeCADGui as Gui
 
-# # Add the current directory to Python path
-# current_dir = os.path.dirname(os.path.abspath(__file__))
-# if current_dir not in sys.path:
-# 	sys.path.append(current_dir)
+# Add the current directory to Python path
+current_dir = os.path.dirname(os.path.abspath(__file__))
+if current_dir not in sys.path:
+	sys.path.append(current_dir)
 
-# from SketchHelperFunctions import create_constrained_line, join_lines, LineOrientation, constrain_point_position, chain_constrained_line
+from SketchHelperFunctions import *
+
 
 class MotorControlPCB:
 	def __init__(self):
@@ -38,7 +40,7 @@ class FramelessMotor:
 		self.StatorID = 22
 		self.IsInrunner = True
 		if(self.IsInrunner):
-			self.StatorODMountClearance = 3	#radial dimension
+			self.StatorODMountClearance = 1	#radial dimension
 		self.WireClearance = 2	#mm, applied to top and bottom
 		
 		self.RotorOD = 28
@@ -51,8 +53,8 @@ class MotorParams:
 		self.stator = FramelessMotor()	#TODO: init all classes from actuator yaml
 		self.mctl_pcb = MotorControlPCB()
 		if(self.stator.IsInrunner):
-			self.topBearing = Bearing(30, 17, 4)
-			self.bottomBearing = Bearing(30, 17, 4)
+			self.topBearing = Bearing(37, 30, 4)
+			self.bottomBearing = Bearing(37, 30, 4)
 		else:
 			self.rotorBearing = Bearing(10,5,5)	#bleh
 		self.BottomBearingSupportThickness = 2	#thickness of the base
@@ -60,6 +62,16 @@ class MotorParams:
 		self.GearboxHeightClearance = 2
 #some motor parameter class, pulled all design defining dims from the yaml
 mp = MotorParams()
+
+try:
+# Store current view
+	view = Gui.ActiveDocument.ActiveView
+	camera = view.getCameraNode()
+	if camera:
+		position = camera.position.getValue()
+		orientation = camera.orientation.getValue()
+except:
+	pass
 
 # Check if document exists and handle accordingly
 doc_name = "StatorHousing"
@@ -134,9 +146,20 @@ if(mp.stator.IsInrunner == True):
 				# Add distance constraint for vertical lines
 				sketch.addConstraint(Sketcher.Constraint('Distance', i, abs(p[i+1].y - p[i].y)))
 	else:
-		pass
+		p = App.Vector(mp.bottomBearing.OD/2, 0)
+		bearing_sidewall = create_constrained_line(sketch, p, mp.bottomBearing.Height, LineOrientation.VERTICAL)
+		bearing_base = create_constrained_line(sketch, p, mp.bottomBearing.OuterRaceClearance, LineOrientation.HORIZONTAL)
+		sketch.addConstraint(Sketcher.Constraint('Coincident', bearing_sidewall, 1, bearing_base, 2))
 
 doc.recompute()
+
+try:
+# Restore view
+	if camera:
+		camera.position.setValue(position)
+		camera.orientation.setValue(orientation)
+except:
+	pass
 
 # Create the revolution
 revolve = doc.addObject("Part::Revolution", "StatorHousing")

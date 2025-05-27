@@ -7,6 +7,7 @@ class LineOrientation(Enum):
 	HORIZONTAL = 'h'
 	VERTICAL = 'v'
 
+
 def create_constrained_line(sketch, start_point, length, orientation=LineOrientation.HORIZONTAL):
 	"""
 	Creates a horizontal or vertical line with appropriate constraints.
@@ -73,29 +74,3 @@ def constrain_point_position(sketch, line, x, y):
     
     # Add vertical distance constraint (y coordinate)
     sketch.addConstraint(Sketcher.Constraint('DistanceY', line, 1, y))
-
-def chain_constrained_line(sketch, previous_line, length, orientation=LineOrientation.HORIZONTAL):
-    """
-    Creates a new line connected to the end of a previous line.
-    
-    Args:
-        sketch: The sketch object to add the line to
-        previous_line: The line to connect to
-        length: Length of the new line (positive for right/up, negative for left/down)
-        orientation: LineOrientation enum ('h' for horizontal, 'v' for vertical)
-    
-    Returns:
-        The newly created line object
-    """
-    # Get the end point of the previous line
-    end_point = previous_line.EndPoint
-    
-    # Create the new line
-    new_line = create_constrained_line(sketch, end_point, length, orientation)
-    
-    # Add coincident constraint between the end of previous line and start of new line
-    join_lines(sketch, previous_line, new_line)
-    
-    return new_line
-
-
