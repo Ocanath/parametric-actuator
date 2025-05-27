@@ -59,6 +59,7 @@ class MotorParams:
 			self.rotorBearing = Bearing(10,5,5)	#bleh
 		self.BottomBearingSupportThickness = 2	#thickness of the base
 		self.HousingOD = self.stator.StatorOD + 4
+		self.HousingID = self.stator.StatorOD
 		self.GearboxHeightClearance = 2
 		
 		#TODO: just load this?
@@ -207,7 +208,9 @@ if(mp.stator.IsInrunner == True):
 
 		p = sketch.Geometry[base_support].EndPoint
 		housing_sidewall = create_constrained_line(sketch, p, mp.StatorHousingHeight, LineOrientation.VERTICAL)
-
+		sketch.addConstraint(Sketcher.Constraint('Coincident', housing_sidewall, 1, base_support, 2))
+		sketch.addConstraint(Sketcher.Constraint('DistanceX', housing_sidewall, 1, mp.HousingOD/2))
+		
 		#add constraint to pcb seat support
 		
 		
