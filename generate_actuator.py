@@ -146,11 +146,60 @@ if(mp.stator.IsInrunner == True):
 				# Add distance constraint for vertical lines
 				sketch.addConstraint(Sketcher.Constraint('Distance', i, abs(p[i+1].y - p[i].y)))
 	else:
+		"""
+		Important note for code-driven sketches:
+		IF you use the constraint solver to move lines to where you want them, the solver
+		will RANDOMLY fail. Sometimes it works, sometimes it doesn't converge. There is no clear
+		indication of this happening either, just 'recompute failed'.
+
+		Put the lines where you want them first, then add constraints. It will be more stable this way.
+		"""
 		p = App.Vector(mp.bottomBearing.OD/2, 0)
 		bearing_sidewall = create_constrained_line(sketch, p, mp.bottomBearing.Height, LineOrientation.VERTICAL)
-		bearing_base = create_constrained_line(sketch, p, mp.bottomBearing.OuterRaceClearance, LineOrientation.HORIZONTAL)
-		sketch.addConstraint(Sketcher.Constraint('Coincident', bearing_sidewall, 1, bearing_base, 2))
+		sketch.addConstraint(Sketcher.Constraint('DistanceX', bearing_sidewall, 1, p.x))	#radial constraint, wall-to-wall on bearing OD
+		
+		bearing_base = create_constrained_line(sketch, p, -mp.bottomBearing.OuterRaceClearance, LineOrientation.HORIZONTAL)
+		sketch.addConstraint(Sketcher.Constraint('Coincident', bearing_sidewall, 1, bearing_base, 1))	
+		sketch.addConstraint(Sketcher.Constraint('DistanceY', bearing_base, 1, 0))
+		
+		p = sketch.Geometry[bearing_base].EndPoint
+		base_support = create_constrained_line(sketch, p, -mp.BottomBearingSupportThickness, LineOrientation.VERTICAL)
+		sketch.addConstraint(Sketcher.Constraint('Coincident', base_support, 1, bearing_base, 2))	#1 is startpoint, 2 is endpoint
+		
+		p = sketch.Geometry[base_support].EndPoint
+		p2 = App.Vector(mp.mctl_pcb.BoardRadius - mp.mctl_pcb.BoardSeatClearance, p.y)
+		pcb_clearance_jog = sketch.addGeometry(Part.LineSegment(p, p2))
+		sketch.addConstraint(Sketcher.Constraint('Horizontal', pcb_clearance_jog))
+		sketch.addConstraint(Sketcher.Constraint('Coincident', pcb_clearance_jog, 1, base_support, 2))
+		#add coincident constraint to previous line
 
+		p = sketch.Geometry[pcb_clearance_jog].EndPoint
+		pcb_gap_wall = create_constrained_line(sketch, p, -(mp.mctl_pcb.EncoderAirgap+mp.mctl_pcb.EncoderHeight), LineOrientation.VERTICAL)	#jog down
+		sketch.addConstraint(Sketcher.Constraint('Coincident', pcb_gap_wall, 1, pcb_clearance_jog, 2))
+		#add constraint to gap wall
+
+		p = sketch.Geometry[pcb_gap_wall].EndPoint
+		p2 = App.Vector(mp.mctl_pcb.BoardRadius, p.y)
+		pcb_seat_jog = sketch.addGeometry(Part.LineSegment(p, p2))
+		sketch.addConstraint(Sketcher.Constraint('Horizontal', pcb_seat_jog))
+		sketch.addConstraint(Sketcher.Constraint('Coincident', pcb_seat_jog, 1, pcb_gap_wall, 2))
+		#add coincident constraint to pcb seat
+
+		p = sketch.Geometry[pcb_seat_jog].EndPoint
+		pcb_sidewall = create_constrained_line(sketch, p, -mp.mctl_pcb.BoardThickness, LineOrientation.VERTICAL)	#continue to jog down, pcb thickness (line to line)
+		sketch.addConstraint(Sketcher.Constraint('DistanceX', pcb_sidewall, 1, mp.mctl_pcb.BoardRadius))
+		sketch.addConstraint(Sketcher.Constraint('Coincident', pcb_sidewall, 1, pcb_seat_jog, 2))
+		#add constraint to pcb sidewall
+
+
+
+		#add constraint to pcb seat support
+		
+		
+
+		
+		
+		
 doc.recompute()
 
 try:
