@@ -55,4 +55,23 @@ def join_lines(sketch, line1, line2):
     # Add coincident constraint between end of line1 and start of line2
     sketch.addConstraint(Sketcher.Constraint('Coincident', line1, 2, line2, 1))
 
+def constrain_point_position(sketch, line, x, y):
+    """
+    Adds horizontal and vertical distance constraints to fix a line's start point at specific coordinates.
+    
+    Args:
+        sketch: The sketch object containing the line
+        line: The line object to constrain
+        x: X coordinate to fix the start point to
+        y: Y coordinate to fix the start point to
+    
+    Returns:
+        None
+    """
+    # Add horizontal distance constraint (x coordinate)
+    sketch.addConstraint(Sketcher.Constraint('DistanceX', line, 1, x))
+    
+    # Add vertical distance constraint (y coordinate)
+    sketch.addConstraint(Sketcher.Constraint('DistanceY', line, 1, y))
+
 
